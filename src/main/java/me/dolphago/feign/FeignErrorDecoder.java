@@ -21,7 +21,7 @@ public final class FeignErrorDecoder implements ErrorDecoder {
             throw new RuntimeException(String.format("[RuntimeException] Http Status is %s", httpStatus));
         }
 
-        if (httpStatus == HttpStatus.FORBIDDEN){
+        if (httpStatus == HttpStatus.FORBIDDEN) {
             log.info("Forbidden...... {}, {}", methodKey, response);
         }
 

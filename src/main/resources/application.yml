@@ -9,11 +9,6 @@ feign:
         connectTimeout: 1000
         readTimeout: 4000
         loggerLevel: BASIC
-  github:
-    url: https://api.github.com
-
-server:
-  port: 80
 
 spring:
   config:
