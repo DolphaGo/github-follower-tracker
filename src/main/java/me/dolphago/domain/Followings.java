@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Followings extends BaseEntity{
+public class Followings extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
