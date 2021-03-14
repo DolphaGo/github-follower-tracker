@@ -18,7 +18,7 @@ public class Followers extends BaseEntity {
     private Long id;
 
     @Builder
-    public Followers(Long github_id, String github_login) {
-        super(github_id, github_login);
+    public Followers(Long githubId, String githubLogin) {
+        super(githubId, githubLogin);
     }
 }

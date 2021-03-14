@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public abstract class BaseEntity {
     @Column(unique = true)
-    private Long github_id;
-    private String github_login;
+    private Long githubId;
+    private String githubLogin;
 
     @CreatedDate
     private LocalDateTime createAt;
@@ -28,8 +28,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    public BaseEntity(Long github_id, String github_login) {
-        this.github_id = github_id;
-        this.github_login = github_login;
+    protected BaseEntity(Long githubId, String githubLogin) {
+        this.githubId = githubId;
+        this.githubLogin = githubLogin;
     }
 }
