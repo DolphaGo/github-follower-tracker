@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -31,15 +32,16 @@ public class FollowTrackingService {
             if (body.isEmpty()) { break; }
             count += body.size();
             for (ResponseDto dto : body) {
+                Optional<Followers> byGithubId = followerRepository.findByGithubId(dto.getId());
+                if (byGithubId.isPresent()) { continue; }
                 Followers follower = Followers.builder()
-                                              .github_id(dto.getId())
-                                              .github_login(dto.getLogin())
+                                              .githubId(dto.getId())
+                                              .githubLogin(dto.getLogin())
                                               .build();
                 try {
                     followerRepository.save(follower);
                 } catch (Exception e) {
                     log.warn("중복된 아이디: {}", dto.getLogin());
-                    continue;
                 }
             }
         }
@@ -54,16 +56,17 @@ public class FollowTrackingService {
             if (body.isEmpty()) { break; }
             count += body.size();
             for (ResponseDto dto : body) {
+                Optional<Followings> byGithubId = followingRepository.findByGithubId(dto.getId());
+                if (byGithubId.isPresent()) { continue; }
                 Followings following = Followings.builder()
-                                                 .github_id(dto.getId())
-                                                 .github_login(dto.getLogin())
+                                                 .githubId(dto.getId())
+                                                 .githubLogin(dto.getLogin())
                                                  .build();
 
                 try {
                     followingRepository.save(following);
                 } catch (Exception e) {
                     log.warn("중복된 아이디: {}", dto.getLogin());
-                    continue;
                 }
             }
         }
