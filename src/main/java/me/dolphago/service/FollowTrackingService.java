@@ -1,10 +1,9 @@
 package me.dolphago.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,28 +71,69 @@ public class FollowTrackingService {
     @Transactional(readOnly = true)
     public String checkFollow(String handle) {
         StringBuilder sb = new StringBuilder();
-        List<Followings> followings = followingRepository.findAll();
-        List<Followers> followers = followerRepository.findAll();
+        List<Followings> followings = followingRepository.findAll(); // 내가 팔로잉하고 있는 사람
+        List<Followers> followers = followerRepository.findAll(); // 나를 팔로우하고 있는 사람
 
-        for (Followings f : followings) {
-            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", f.getGithubLogin(), handle);
-            ResponseEntity<?> responseEntity = client.checkFollow(f.getGithubLogin(), handle);
-            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
-                sb.append(f.getGithubLogin() + "은 나를 팔로우 하고 있지 않습니다.").append('\n');
-                log.info("{} <- 이 사람은 나를 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
+        List<String> eachFollow = new ArrayList<>();
+
+        // 서로 이웃
+        for (Followers er : followers) {
+            for (Followings ing : followings) {
+                if (isEqual(er.getId(), ing.getId())) {
+                    eachFollow.add(er.getGithubLogin());
+                    break;
+                }
             }
         }
 
-        for (Followers f : followers) {
-            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", handle, f.getGithubLogin());
-            ResponseEntity<?> responseEntity = client.checkFollow(handle, f.getGithubLogin());
-            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
-                sb.append("나는 " + f.getGithubLogin() + "를 팔로우 하고 있지 않습니다.").append('\n');
-                log.info("{} <- 나는 이 사람을 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
-            }
+        // 나는 이 사람들을 팔로우 하고 있지 않음
+        for (String each : eachFollow) {
+            followers.removeIf(er -> er.getGithubLogin().equals(each));
         }
+
+        // 나는 이 사람들을 팔로우 하고 있음
+        for (String each : eachFollow){
+            followings.removeIf(ing -> ing.getGithubLogin().equals(each));
+        }
+
+        sb.append("============ 서로 이웃 명단 =========").append('\n');
+        for(String each : eachFollow){
+            sb.append(each).append('\n');
+        }
+
+        sb.append("============ 내가 팔로우 하고 있지 않은 사람들 =========").append('\n');
+        for(Followers f : followers){
+            sb.append(f.getGithubLogin()).append('\n');
+        }
+
+        sb.append("============  나를 팔로우 하고 있지 않은 사람들 =========").append('\n');
+        for(Followings f :followings){
+            sb.append(f.getGithubLogin()).append('\n');
+        }
+
+//        for (Followings f : followings) {
+//            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", f.getGithubLogin(), handle);
+//            ResponseEntity<?> responseEntity = client.checkFollow(f.getGithubLogin(), handle);
+//            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
+//                sb.append(f.getGithubLogin() + "은 나를 팔로우 하고 있지 않습니다.").append('\n');
+//                log.info("{} <- 이 사람은 나를 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
+//            }
+//        }
+//
+//        for (Followers f : followers) {
+//            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", handle, f.getGithubLogin());
+//            ResponseEntity<?> responseEntity = client.checkFollow(handle, f.getGithubLogin());
+//            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
+//                sb.append("나는 " + f.getGithubLogin() + "를 팔로우 하고 있지 않습니다.").append('\n');
+//                log.info("{} <- 나는 이 사람을 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
+//            }
+//        }
 
         return sb.toString();
+    }
+
+    static boolean isEqual(Long a, Long b) {
+        return a.equals(b);
     }
 
 }
