@@ -1,7 +1,10 @@
 package me.dolphago.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -121,6 +124,7 @@ public class FollowTrackingService {
         for (String e : eachFollow) {
             followings.removeIf(ing -> isEqual(ing.getGithubLogin(), e));
         }
+
 
         sb.append("============ Each other's neighbors ========= : " + eachFollow.size() + "<br/>");
         for (String e : eachFollow) {
