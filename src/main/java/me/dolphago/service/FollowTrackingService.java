@@ -102,15 +102,12 @@ public class FollowTrackingService {
     }
 
     public String checkFollow(String handle) {
-        List<Followings> followings = getFollowings(handle); // 내가 팔로잉하고 있는 사람
-        List<Followers> followers = getFollowers(handle); // 나를 팔로우하고 있는 사람
+        List<Followings> followings = getFollowings(handle);
+        List<Followers> followers = getFollowers(handle);
 
-        log.info("내가 팔로잉하고 있는 {}명 저장", followings.size());
-        log.info("나를 팔로우하고 있는 {}명 저장", followers.size());
         StringBuilder sb = new StringBuilder();
         List<String> eachFollow = new ArrayList<>();
 
-        // 서로 이웃
         for (Followers er : followers) {
             for (Followings ing : followings) {
                 if (isEqual(er.getGithubLogin(), ing.getGithubLogin())) {
@@ -120,27 +117,26 @@ public class FollowTrackingService {
             }
         }
 
-        // 나는 이 사람들을 팔로우 하고 있지 않음
         for (String e : eachFollow) {
             followers.removeIf(er -> isEqual(er.getGithubLogin(), e));
         }
 
-        // 나는 이 사람들을 팔로우 하고 있음
         for (String e : eachFollow) {
             followings.removeIf(ing -> isEqual(ing.getGithubLogin(), e));
         }
 
-        sb.append("============ 서로 이웃 명단 ========= : " + eachFollow.size() + "명<br/>");
+
+        sb.append("============ Each other's neighbors ========= : " + eachFollow.size() + "<br/>");
         for (String e : eachFollow) {
             sb.append(e).append("<br/>");
         }
 
-        sb.append("============ 내가 팔로우 하고 있지 않은 사람들 ========= : " + followers.size() + "명<br/>");
+        sb.append("============ Someone who's following you(not you) ========= : " + followers.size() + "<br/>");
         for (Followers f : followers) {
             sb.append(f.getGithubLogin()).append("<br/>");
         }
 
-        sb.append("============  나를 팔로우 하고 있지 않은 사람들 ========= : " + followings.size() + "명<br/>");
+        sb.append("============  Someone you are following(not the him) ========= : " + followings.size() + "<br/>");
         for (Followings f : followings) {
             sb.append(f.getGithubLogin()).append("<br/>");
         }

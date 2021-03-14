@@ -17,7 +17,7 @@ public class FollowController {
 
     @GetMapping("/check/{handle}")
     public ResponseEntity<String> check(@PathVariable("handle") String handle) {
-        log.info("유저 {}의 팔로우 상태를 점검합니다.", handle);
+        log.info("Check Follow {}'s Status.....", handle);
         return ResponseEntity.ok(followTrackingService.checkFollow(handle));
     }
 }
