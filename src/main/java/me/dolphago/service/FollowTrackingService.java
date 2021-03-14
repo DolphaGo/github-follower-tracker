@@ -3,6 +3,8 @@ package me.dolphago.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,4 +68,32 @@ public class FollowTrackingService {
     public Optional<?> getUser(String handle) {
         return Optional.ofNullable(client.getUserInfo(handle).getBody());
     }
+
+    @Transactional(readOnly = true)
+    public String checkFollow(String handle) {
+        StringBuilder sb = new StringBuilder();
+        List<Followings> followings = followingRepository.findAll();
+        List<Followers> followers = followerRepository.findAll();
+
+        for (Followings f : followings) {
+            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", f.getGithubLogin(), handle);
+            ResponseEntity<?> responseEntity = client.checkFollow(f.getGithubLogin(), handle);
+            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
+                sb.append(f.getGithubLogin() + "은 나를 팔로우 하고 있지 않습니다.").append('\n');
+                log.info("{} <- 이 사람은 나를 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
+            }
+        }
+
+        for (Followers f : followers) {
+            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", handle, f.getGithubLogin());
+            ResponseEntity<?> responseEntity = client.checkFollow(handle, f.getGithubLogin());
+            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
+                sb.append("나는 " + f.getGithubLogin() + "를 팔로우 하고 있지 않습니다.").append('\n');
+                log.info("{} <- 나는 이 사람을 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
+            }
+        }
+
+        return sb.toString();
+    }
+
 }

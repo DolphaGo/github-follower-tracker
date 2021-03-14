@@ -13,8 +13,7 @@ import me.dolphago.dto.ResponseDto;
 
 @FeignClient(
         name = "github-follow",
-        url = "https://api.github.com/users",
-        configuration = FeignConfig.class)
+        url = "https://api.github.com/users")
 public interface GithubFeignClient {
 
     @GetMapping(value = "/{handle}",
@@ -31,6 +30,11 @@ public interface GithubFeignClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = "application/vnd.github.v3+json")
     ResponseEntity<List<ResponseDto>> getFollowers(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
+
+    @GetMapping(value = "/{handle}/following/{target}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = "application/vnd.github.v3+json")
+    ResponseEntity<?> checkFollow(@PathVariable("handle") String handle, @PathVariable("target") String target);
 
     @GetMapping(value = "/errorDecoder",
             produces = MediaType.APPLICATION_JSON_VALUE,

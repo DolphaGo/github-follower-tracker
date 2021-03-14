@@ -5,7 +5,7 @@ feign:
         connectTimeout: 1000
         readTimeout: 5000
         loggerLevel: NONE
-      demo-name:
+      github-follow:
         connectTimeout: 1000
         readTimeout: 4000
         loggerLevel: BASIC

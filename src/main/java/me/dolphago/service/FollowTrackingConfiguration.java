@@ -13,11 +13,18 @@ import org.springframework.context.annotation.Configuration;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.dolphago.domain.FollowerRepository;
+import me.dolphago.domain.FollowingRepository;
+import me.dolphago.feign.GithubFeignClient;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class FollowTrackingConfiguration {
+    private final GithubFeignClient client;
+    private final FollowerRepository followerRepository;
+    private final FollowingRepository followingRepository;
+
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private String INJECT_HANDLE = null;
