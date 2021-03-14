@@ -3,6 +3,8 @@ package me.dolphago.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,22 +29,18 @@ public class FollowTrackingService {
     public int saveFollowers(String handle) {
         int count = 0;
         for (int pageNum = 1; ; pageNum++) {
-            List<ResponseDto> body = client.getFollowers(handle, pageNum).getBody();
+            final List<ResponseDto> body = client.getFollowers(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
-            count += body.size();
-            for (ResponseDto dto : body) {
-                Optional<Followers> byGithubId = followerRepository.findByGithubId(dto.getId());
-                if (byGithubId.isPresent()) { continue; }
-                Followers follower = Followers.builder()
-                                              .githubId(dto.getId())
-                                              .githubLogin(dto.getLogin())
-                                              .build();
-                try {
-                    followerRepository.save(follower);
-                } catch (Exception e) {
-                    log.warn("중복된 아이디: {}", dto.getLogin());
-                }
-            }
+            count += body.stream()
+                         .filter(dto -> {
+                             Optional<Followers> result = followerRepository.findByGithubId(dto.getId());
+                             return result.isEmpty();
+                         }).map(dto -> Followers.builder()
+                                                .githubId(dto.getId())
+                                                .githubLogin(dto.getLogin())
+                                                .build())
+                         .map(followerRepository::save)
+                         .count();
         }
         return count;
     }
@@ -51,23 +49,18 @@ public class FollowTrackingService {
     public long saveFollowings(String handle) {
         int count = 0;
         for (int pageNum = 1; ; pageNum++) {
-            List<ResponseDto> body = client.getFollowings(handle, pageNum).getBody();
+            final List<ResponseDto> body = client.getFollowings(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
-            count += body.size();
-            for (ResponseDto dto : body) {
-                Optional<Followings> byGithubId = followingRepository.findByGithubId(dto.getId());
-                if (byGithubId.isPresent()) { continue; }
-                Followings following = Followings.builder()
+            count += body.stream()
+                         .filter(dto -> {
+                             Optional<Followings> result = followingRepository.findByGithubId(dto.getId());
+                             return result.isEmpty();
+                         }).map(dto -> Followings.builder()
                                                  .githubId(dto.getId())
                                                  .githubLogin(dto.getLogin())
-                                                 .build();
-
-                try {
-                    followingRepository.save(following);
-                } catch (Exception e) {
-                    log.warn("중복된 아이디: {}", dto.getLogin());
-                }
-            }
+                                                 .build())
+                         .map(followingRepository::save)
+                         .count();
         }
         return count;
     }
@@ -75,4 +68,32 @@ public class FollowTrackingService {
     public Optional<?> getUser(String handle) {
         return Optional.ofNullable(client.getUserInfo(handle).getBody());
     }
+
+    @Transactional(readOnly = true)
+    public String checkFollow(String handle) {
+        StringBuilder sb = new StringBuilder();
+        List<Followings> followings = followingRepository.findAll();
+        List<Followers> followers = followerRepository.findAll();
+
+        for (Followings f : followings) {
+            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", f.getGithubLogin(), handle);
+            ResponseEntity<?> responseEntity = client.checkFollow(f.getGithubLogin(), handle);
+            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
+                sb.append(f.getGithubLogin() + "은 나를 팔로우 하고 있지 않습니다.").append('\n');
+                log.info("{} <- 이 사람은 나를 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
+            }
+        }
+
+        for (Followers f : followers) {
+            log.info("{}이 {}를 팔로우 하고 있는지 검사합니다.", handle, f.getGithubLogin());
+            ResponseEntity<?> responseEntity = client.checkFollow(handle, f.getGithubLogin());
+            if (responseEntity.getStatusCode() != HttpStatus.NO_CONTENT) {
+                sb.append("나는 " + f.getGithubLogin() + "를 팔로우 하고 있지 않습니다.").append('\n');
+                log.info("{} <- 나는 이 사람을 팔로우 하고 있지 않습니다. ", f.getGithubLogin());
+            }
+        }
+
+        return sb.toString();
+    }
+
 }
