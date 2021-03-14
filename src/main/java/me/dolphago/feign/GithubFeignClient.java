@@ -1,10 +1,15 @@
 package me.dolphago.feign;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import me.dolphago.dto.ResponseDto;
 
 @FeignClient(
         name = "github-follow",
@@ -20,12 +25,12 @@ public interface GithubFeignClient {
     @GetMapping(value = "/{handle}/following",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = "application/vnd.github.v3+json")
-    ResponseEntity<?> getFollowings(@PathVariable("handle") String handle);
+    ResponseEntity<List<ResponseDto>> getFollowings(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
 
     @GetMapping(value = "/{handle}/followers",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = "application/vnd.github.v3+json")
-    ResponseEntity<?> getFollowers(@PathVariable("handle") String handle);
+    ResponseEntity<List<ResponseDto>> getFollowers(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
 
     @GetMapping(value = "/errorDecoder",
             produces = MediaType.APPLICATION_JSON_VALUE,

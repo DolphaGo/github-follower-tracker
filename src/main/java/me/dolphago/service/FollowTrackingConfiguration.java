@@ -32,10 +32,11 @@ public class FollowTrackingConfiguration {
     @JobScope
     @Bean
     public Step checkStep(@Value("#{jobParameters[handle]}") String handle) {
+        String checkHandle = handle ==null ? "DolphaGo" : handle;
         return stepBuilderFactory.get("check......")
                                  .tasklet((contribution, chunkContext) -> {
                                      contribution.setExitStatus(ExitStatus.COMPLETED);
-                                     log.info("{}의 팔로우 상황을 체크합니다...", handle);
+                                     log.info("{}의 팔로우 상황을 체크합니다...", checkHandle);
                                      return RepeatStatus.FINISHED;
                                  }).build();
     }

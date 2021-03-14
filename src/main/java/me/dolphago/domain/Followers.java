@@ -12,17 +12,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class MyData {
+public class Followers extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long github_id;
-    private String github_login;
-
     @Builder
-    public MyData(Long github_id, String github_login) {
-        this.github_id = github_id;
-        this.github_login = github_login;
+    public Followers(Long github_id, String github_login) {
+        super(github_id, github_login);
     }
 }

@@ -14,11 +14,8 @@ public final class FeignErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
         final HttpStatus httpStatus = HttpStatus.resolve(response.status());
 
-        // Handle Custom Error Status Code
-        // The rest is delegated to the default error decoder
         if (httpStatus == HttpStatus.NOT_FOUND) {
-            log.warn("[Slf4j] Http Status = {}", httpStatus);
-            throw new RuntimeException(String.format("[RuntimeException] Http Status is %s", httpStatus));
+            throw new RuntimeException("[Message] 그런 사용자는 없네요.");
         }
 
         if (httpStatus == HttpStatus.FORBIDDEN) {
