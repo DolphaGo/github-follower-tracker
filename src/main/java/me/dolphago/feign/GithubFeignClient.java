@@ -22,12 +22,12 @@ public interface GithubFeignClient {
             consumes = "application/vnd.github.v3+json")
     ResponseEntity<?> getUserInfo(@PathVariable("handle") String handle);
 
-    @GetMapping(value = "/{handle}/following",
+    @GetMapping(value = "/{handle}/following?per_page=100",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = "application/vnd.github.v3+json")
     ResponseEntity<List<ResponseDto>> getFollowings(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
 
-    @GetMapping(value = "/{handle}/followers",
+    @GetMapping(value = "/{handle}/followers?per_page=100",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = "application/vnd.github.v3+json")
     ResponseEntity<List<ResponseDto>> getFollowers(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);

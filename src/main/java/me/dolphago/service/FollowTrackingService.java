@@ -27,22 +27,18 @@ public class FollowTrackingService {
     public int saveFollowers(String handle) {
         int count = 0;
         for (int pageNum = 1; ; pageNum++) {
-            List<ResponseDto> body = client.getFollowers(handle, pageNum).getBody();
+            final List<ResponseDto> body = client.getFollowers(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
-            count += body.size();
-            for (ResponseDto dto : body) {
-                Optional<Followers> byGithubId = followerRepository.findByGithubId(dto.getId());
-                if (byGithubId.isPresent()) { continue; }
-                Followers follower = Followers.builder()
-                                              .githubId(dto.getId())
-                                              .githubLogin(dto.getLogin())
-                                              .build();
-                try {
-                    followerRepository.save(follower);
-                } catch (Exception e) {
-                    log.warn("중복된 아이디: {}", dto.getLogin());
-                }
-            }
+            count += body.stream()
+                         .filter(dto -> {
+                             Optional<Followers> result = followerRepository.findByGithubId(dto.getId());
+                             return result.isEmpty();
+                         }).map(dto -> Followers.builder()
+                                                .githubId(dto.getId())
+                                                .githubLogin(dto.getLogin())
+                                                .build())
+                         .map(followerRepository::save)
+                         .count();
         }
         return count;
     }
@@ -51,23 +47,18 @@ public class FollowTrackingService {
     public long saveFollowings(String handle) {
         int count = 0;
         for (int pageNum = 1; ; pageNum++) {
-            List<ResponseDto> body = client.getFollowings(handle, pageNum).getBody();
+            final List<ResponseDto> body = client.getFollowings(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
-            count += body.size();
-            for (ResponseDto dto : body) {
-                Optional<Followings> byGithubId = followingRepository.findByGithubId(dto.getId());
-                if (byGithubId.isPresent()) { continue; }
-                Followings following = Followings.builder()
+            count += body.stream()
+                         .filter(dto -> {
+                             Optional<Followings> result = followingRepository.findByGithubId(dto.getId());
+                             return result.isEmpty();
+                         }).map(dto -> Followings.builder()
                                                  .githubId(dto.getId())
                                                  .githubLogin(dto.getLogin())
-                                                 .build();
-
-                try {
-                    followingRepository.save(following);
-                } catch (Exception e) {
-                    log.warn("중복된 아이디: {}", dto.getLogin());
-                }
-            }
+                                                 .build())
+                         .map(followingRepository::save)
+                         .count();
         }
         return count;
     }
