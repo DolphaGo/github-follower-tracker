@@ -1,4 +1,4 @@
-# 😉You can check your Github Following & Follower
+# 😉You can check your Github Following & Follower!
 
 ### Aren't you curious about who is following you or who are you following?🤔
 
