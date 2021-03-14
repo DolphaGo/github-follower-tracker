@@ -7,3 +7,9 @@
 
 ### It is very Simple. All you have to do is enter the GitHub handle.
 Just Try `curl localhost:8080/check/{your github handle}`
+
+## Version
+
+* Java : 11
+* Spring Boot : 2.4.3
+* Build Tool : Gradle
