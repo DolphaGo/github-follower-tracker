@@ -6,7 +6,11 @@
 
 
 ### It is very Simple. All you have to do is enter the GitHub handle.
-Just Try `curl localhost:8080/check/{your github handle}`
+Just Try Run Server and type `http://localhost:8080/check/{your github handle}` on your chrome.
+You can show
+1. each other's neighbors
+2. Someone who's following you(not you)
+3. Someone you are following(not the him)
 
 ## Version
 
