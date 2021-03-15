@@ -5,8 +5,8 @@
 ### I have a follow/unfollow check service on Instagram, but it's not on GitHub, so I just made it for fun.
 
 
-### It is very Simple. All you have to do is enter the GitHub handle.
-Just Try Run Server and type `http://localhost:8080/check/{your github handle}` on your browser.
+### It is very Simple. All you have to do is type `your GitHub handle`.
+Just Try `Run Server` and type `http://localhost:8080/check/{your github handle}` on your browser.
 
 You can look this infomation.
 1. each other's neighbors
