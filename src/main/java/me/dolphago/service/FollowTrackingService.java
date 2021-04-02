@@ -12,10 +12,13 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.dolphago.domain.BaseEntity;
 import me.dolphago.domain.FollowerRepository;
 import me.dolphago.domain.Followers;
 import me.dolphago.domain.FollowingRepository;
 import me.dolphago.domain.Followings;
+import me.dolphago.dto.FeignResponseDto;
+import me.dolphago.dto.MemberDto;
 import me.dolphago.dto.ResponseDto;
 import me.dolphago.feign.GithubFeignClient;
 
@@ -30,7 +33,7 @@ public class FollowTrackingService {
     public int saveFollowers(String handle) {
         int count = 0;
         for (int pageNum = 1; ; pageNum++) {
-            final List<ResponseDto> body = client.getFollowers(handle, pageNum).getBody();
+            final List<FeignResponseDto> body = client.getFollowers(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
             count += body.stream()
                          .filter(dto -> {
@@ -49,7 +52,7 @@ public class FollowTrackingService {
     public long saveFollowings(String handle) {
         int count = 0;
         for (int pageNum = 1; ; pageNum++) {
-            final List<ResponseDto> body = client.getFollowings(handle, pageNum).getBody();
+            final List<FeignResponseDto> body = client.getFollowings(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
             count += body.stream()
                          .filter(dto -> {
@@ -72,12 +75,13 @@ public class FollowTrackingService {
     public List<Followers> getFollowers(String handle) {
         List<Followers> followers = new ArrayList<>();
         for (int pageNum = 1; ; pageNum++) {
-            final List<ResponseDto> body = client.getFollowers(handle, pageNum).getBody();
+            final List<FeignResponseDto> body = client.getFollowers(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
             List<Followers> collect = body.stream()
                                           .map(dto -> Followers.builder()
                                                                .githubId(dto.getId())
                                                                .githubLogin(dto.getLogin())
+                                                               .url(dto.getHtml_url())
                                                                .build())
                                           .collect(Collectors.toList());
             followers.addAll(collect);
@@ -88,12 +92,13 @@ public class FollowTrackingService {
     public List<Followings> getFollowings(String handle) {
         List<Followings> followings = new ArrayList<>();
         for (int pageNum = 1; ; pageNum++) {
-            final List<ResponseDto> body = client.getFollowings(handle, pageNum).getBody();
+            final List<FeignResponseDto> body = client.getFollowings(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
             List<Followings> collect = body.stream()
                                            .map(dto -> Followings.builder()
                                                                  .githubId(dto.getId())
                                                                  .githubLogin(dto.getLogin())
+                                                                 .url(dto.getHtml_url())
                                                                  .build())
                                            .collect(Collectors.toList());
             followings.addAll(collect);
@@ -101,50 +106,41 @@ public class FollowTrackingService {
         return followings;
     }
 
-    public String checkFollow(String handle) {
-        List<Followings> followings = getFollowings(handle);
-        List<Followers> followers = getFollowers(handle);
+    public ResponseDto checkFollow(String handle) {
+        ResponseDto responseDto = ResponseDto.create();
 
-        StringBuilder sb = new StringBuilder();
-        List<String> eachFollow = new ArrayList<>();
+        Map<String, Followers> followerMap = getFollowers(handle).stream()
+                                                                 .collect(Collectors.toMap(o -> o.getGithubLogin(), o -> o));
 
-        for (Followers er : followers) {
-            for (Followings ing : followings) {
-                if (isEqual(er.getGithubLogin(), ing.getGithubLogin())) {
-                    eachFollow.add(er.getGithubLogin());
-                    break;
-                }
-            }
-        }
+        Map<String, Followings> followingMap = getFollowings(handle).stream()
+                                                                    .collect(Collectors.toMap(o -> o.getGithubLogin(), o -> o));
 
-        for (String e : eachFollow) {
-            followers.removeIf(er -> isEqual(er.getGithubLogin(), e));
-        }
+        Map<String, BaseEntity> eachNeighborMap = new HashMap<>();
 
-        for (String e : eachFollow) {
-            followings.removeIf(ing -> isEqual(ing.getGithubLogin(), e));
-        }
+        responseDto.getNeighbors().create(
+                followerMap.entrySet()
+                           .stream()
+                           .filter(e -> followingMap.containsKey(e.getKey()))
+                           .map(e -> {
+                               eachNeighborMap.put(e.getKey(), e.getValue());
+                               return e.getValue();
+                           }).map(MemberDto::from)
+                           .collect(Collectors.toList()));
 
+        responseDto.getOnlyFollowers().create(followerMap.entrySet()
+                                                         .stream()
+                                                         .filter(e -> !eachNeighborMap.containsKey(e.getKey()))
+                                                         .map(e -> e.getValue())
+                                                         .map(MemberDto::from)
+                                                         .collect(Collectors.toList()));
 
-        sb.append("============ Each other's neighbors ========= : " + eachFollow.size() + "<br/>");
-        for (String e : eachFollow) {
-            sb.append(e).append("<br/>");
-        }
+        responseDto.getOnlyFollowings().create(followingMap.entrySet()
+                                                           .stream()
+                                                           .filter(e -> !eachNeighborMap.containsKey(e.getKey()))
+                                                           .map(e -> e.getValue())
+                                                           .map(MemberDto::from)
+                                                           .collect(Collectors.toList()));
 
-        sb.append("============ Someone who's following you(not you) ========= : " + followers.size() + "<br/>");
-        for (Followers f : followers) {
-            sb.append(f.getGithubLogin()).append("<br/>");
-        }
-
-        sb.append("============  Someone you are following(not the him) ========= : " + followings.size() + "<br/>");
-        for (Followings f : followings) {
-            sb.append(f.getGithubLogin()).append("<br/>");
-        }
-        return sb.toString();
+        return responseDto;
     }
-
-    static boolean isEqual(Object a, Object b) {
-        return a.equals(b);
-    }
-
 }

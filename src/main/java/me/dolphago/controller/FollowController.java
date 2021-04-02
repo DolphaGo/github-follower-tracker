@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.dolphago.dto.ResponseDto;
 import me.dolphago.service.FollowTrackingService;
 
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class FollowController {
     private final FollowTrackingService followTrackingService;
 
     @GetMapping("/check/{handle}")
-    public ResponseEntity<String> check(@PathVariable("handle") String handle) {
+    public ResponseEntity<ResponseDto> check(@PathVariable("handle") String handle) {
         log.info("Check Follow {}'s Status.....", handle);
         return ResponseEntity.ok(followTrackingService.checkFollow(handle));
     }

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import me.dolphago.dto.ResponseDto;
+import me.dolphago.dto.FeignResponseDto;
 
 @FeignClient(
         name = "github-follow",
@@ -24,12 +24,12 @@ public interface GithubFeignClient {
     @GetMapping(value = "/{handle}/following?per_page=100",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = "application/vnd.github.v3+json")
-    ResponseEntity<List<ResponseDto>> getFollowings(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
+    ResponseEntity<List<FeignResponseDto>> getFollowings(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
 
     @GetMapping(value = "/{handle}/followers?per_page=100",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = "application/vnd.github.v3+json")
-    ResponseEntity<List<ResponseDto>> getFollowers(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
+    ResponseEntity<List<FeignResponseDto>> getFollowers(@PathVariable("handle") String handle, @RequestParam("page") int pageNum);
 
     @GetMapping(value = "/{handle}/following/{target}",
             produces = MediaType.APPLICATION_JSON_VALUE,

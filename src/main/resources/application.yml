@@ -10,10 +10,25 @@ feign:
         readTimeout: 4000
         loggerLevel: BASIC
 
+server:
+  error:
+    include-exception: false
+    include-message: always
+    include-stacktrace: on_param
+    whitelabel.enabled: true
+
+spring:
+  profiles:
+    active: mysql
+
+---
 spring:
   h2:
     console:
       enabled: true
+      settings:
+        web-allow-others: true
+
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -30,9 +45,25 @@ spring:
         show_sql: true
 
 
-server:
-  error:
-    include-exception: false
-    include-message: always
-    include-stacktrace: on_param
-    whitelabel.enabled: true
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mysql
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/testdb?serverTimezone=UTC&autoReconnection=true&useSSL=false
+    username: test
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_batch_fetch_size: 1000
+#        format_sql: true
+#        show_sql: true
