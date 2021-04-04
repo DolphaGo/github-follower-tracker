@@ -15,9 +15,8 @@ You can look this infomation.
 
 
 Also, you can use this application as batch application
-
-VM Option : `-Dspring.batch.job.names=checkFollowJob`
-ProgramArguments : handle = `{your github handle}` ex) handle=DolphaGo
+- VM Option : `-Dspring.batch.job.names=checkFollowJob`
+- ProgramArguments : handle = `{your github handle}` ex) handle=DolphaGo
 
 
 ## Version
