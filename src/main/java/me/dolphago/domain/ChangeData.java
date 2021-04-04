@@ -1,14 +1,10 @@
 package me.dolphago.domain;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-
-import org.springframework.data.annotation.CreatedDate;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -19,17 +15,21 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Entity
-public class ChangeData extends BaseClass {
+public class ChangeData extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
+
+    private String githubLogin;
+    private String url;
 
     @Enumerated(EnumType.STRING)
     private Relation status;
 
     @Builder
-    public ChangeData(String login, String url, Relation status) {
-        BaseClass.of()
+    public ChangeData(String githubLogin, String url, Relation status) {
+        this.githubLogin = githubLogin;
+        this.url = url;
         this.status = status;
     }
 }

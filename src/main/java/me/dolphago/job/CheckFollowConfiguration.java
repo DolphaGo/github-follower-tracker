@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.core.Job;
@@ -19,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.dolphago.domain.BaseClass;
+import me.dolphago.domain.BaseEntity;
 import me.dolphago.domain.ChangeData;
 import me.dolphago.domain.Followers;
 import me.dolphago.domain.Followings;
@@ -62,10 +61,9 @@ public class CheckFollowConfiguration {
                                      List<Neighbor> neighbors = responseDto.getNeighbors()
                                                                            .getList()
                                                                            .stream()
-                                                                           .map(memberDto -> MemberDto.toEntity(memberDto, Neighbor.class))
+                                                                           .map(MemberDto::toNeighbor)
                                                                            .collect(Collectors.toList());
 
-                                     // BaseClass <-
                                      // followersByMap : <String, Follower> (only) 상대방이 팔로우하고 있어, 나는 그사람 안하고..
                                      // followingsByMap: <String, Following> (only) 나만 그 사람을 팔로우하고있어.
                                      followTrackingService.saveFollowers(followersByMap, responseDto.getOnlyFollowers().getList(), neighbors);
@@ -76,30 +74,55 @@ public class CheckFollowConfiguration {
 
     private List<ChangeData> getChangeStatus(ResponseDto responseDto, Map<String, Followers> followersByMap, Map<String, Followings> followingsByMap) {
         List<ChangeData> changeData = new ArrayList<>();
-        changeData.addAll(getChange(responseDto.getOnlyFollowers().getList(), followersByMap, Relation.NEW_FOLLOWER, Relation.NEW_UNFOLLOWER));
-        changeData.addAll(getChange(responseDto.getOnlyFollowings().getList(), followingsByMap, Relation.NEW_FOLLOWING, Relation.NEW_UNFOLLOWING));
+        changeData.addAll(getChangeFromFollower(responseDto.getOnlyFollowers().getList(), followersByMap));
+        changeData.addAll(getChangeFromFollowing(responseDto.getOnlyFollowings().getList(), followingsByMap));
         return changeData;
     }
 
-    private <T extends BaseClass> List<ChangeData> getChange(List<MemberDto> currentList, Map<String, T> originalMap, Relation newValue, Relation oldValue) {
+    private List<ChangeData> getChangeFromFollower(List<MemberDto> currentList, Map<String, Followers> originalMap) {
         List<ChangeData> changeData = new ArrayList<>();
         for (MemberDto memberDto : currentList) {
             String login = memberDto.getGithubLogin();
             if (!originalMap.containsKey(login)) { // 기존에 없었는데 새로 생긴 사람들
                 changeData.add(ChangeData.builder()
-                                         .login(login)
+                                         .githubLogin(login)
                                          .url(memberDto.getUrl())
-                                         .status(newValue)
+                                         .status(Relation.NEW_FOLLOWER)
                                          .build());
             } else { originalMap.remove(login); }
         }
 
         if (!originalMap.isEmpty()) {
-            for (Entry<String, T> m : originalMap.entrySet()) { // 기존엔 있었지만, 사라진 사람들
+            for (Entry<String, Followers> m : originalMap.entrySet()) { // 기존엔 있었지만, 사라진 사람들
                 changeData.add(ChangeData.builder()
-                                         .login(m.getKey())
+                                         .githubLogin(m.getKey())
                                          .url(m.getValue().getUrl())
-                                         .status(oldValue)
+                                         .status(Relation.NEW_UNFOLLOWER)
+                                         .build());
+            }
+        }
+        return changeData;
+    }
+
+    private List<ChangeData> getChangeFromFollowing(List<MemberDto> currentList, Map<String, Followings> originalMap) {
+        List<ChangeData> changeData = new ArrayList<>();
+        for (MemberDto memberDto : currentList) {
+            String login = memberDto.getGithubLogin();
+            if (!originalMap.containsKey(login)) { // 기존에 없었는데 새로 생긴 사람들
+                changeData.add(ChangeData.builder()
+                                         .githubLogin(login)
+                                         .url(memberDto.getUrl())
+                                         .status(Relation.NEW_FOLLOWING)
+                                         .build());
+            } else { originalMap.remove(login); }
+        }
+
+        if (!originalMap.isEmpty()) {
+            for (Entry<String, Followings> m : originalMap.entrySet()) { // 기존엔 있었지만, 사라진 사람들
+                changeData.add(ChangeData.builder()
+                                         .githubLogin(m.getKey())
+                                         .url(m.getValue().getUrl())
+                                         .status(Relation.NEW_UNFOLLOWING)
                                          .build());
             }
         }

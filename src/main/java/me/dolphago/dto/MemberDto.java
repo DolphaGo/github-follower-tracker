@@ -3,8 +3,10 @@ package me.dolphago.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import me.dolphago.domain.BaseClass;
+import me.dolphago.domain.BaseEntity;
+import me.dolphago.domain.Followers;
 import me.dolphago.domain.Followings;
+import me.dolphago.domain.Neighbor;
 
 @ToString
 @Getter
@@ -19,18 +21,32 @@ public class MemberDto {
         this.url = url;
     }
 
-    public static MemberDto from(BaseClass entity) {
-        return new MemberDto(entity.getGithubLogin(), entity.getUrl());
+    public static MemberDto from(String githubLogin, String url) {
+        return new MemberDto(githubLogin, url);
     }
 
-    public static <T> T toEntity(MemberDto memberDto, Class<T> cls) {
-        return cls.cast(T.
-                           .githubLogin(memberDto.getGithubLogin())
-                           .url(memberDto.getUrl())
-                           .build());
+    public static Followers toFollowers(MemberDto memberDto) {
+        return Followers.builder()
+                        .githubLogin(memberDto.getGithubLogin())
+                        .url(memberDto.getUrl())
+                        .build();
     }
 
-//    public static <T extends BaseClass> T toEntity(MemberDto memberDto, Class<T> cls) {
+    public static Followings toFollowings(MemberDto memberDto) {
+        return Followings.builder()
+                         .githubLogin(memberDto.getGithubLogin())
+                         .url(memberDto.getUrl())
+                         .build();
+    }
+
+    public static Neighbor toNeighbor(MemberDto memberDto) {
+        return Neighbor.builder()
+                       .githubLogin(memberDto.getGithubLogin())
+                       .url(memberDto.getUrl())
+                       .build();
+    }
+
+//    public static <T> T toEntity(MemberDto memberDto, Class<T> cls) { // 이런식으로 구현하고 싶은데 ㅠ.
 //        return cls.cast(T.builder()
 //                         .githubLogin(memberDto.getGithubLogin())
 //                         .url(memberDto.getUrl())

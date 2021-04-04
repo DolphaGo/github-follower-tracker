@@ -11,13 +11,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Followings extends BaseClass {
+public class Followings extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
+    String githubLogin;
+    String url;
 
     @Builder
     public Followings(String githubLogin, String url) {
-        super(githubLogin, url);
+        this.githubLogin = githubLogin;
+        this.url = url;
     }
 }
