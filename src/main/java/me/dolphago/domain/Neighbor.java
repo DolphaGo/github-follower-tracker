@@ -11,13 +11,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Followings extends BaseClass {
+public class Neighbor extends BaseClass {
     @Id
     @GeneratedValue
     private Long id;
 
-    @Builder
-    public Followings(String githubLogin, String url) {
-        super(githubLogin, url);
-    }
 }

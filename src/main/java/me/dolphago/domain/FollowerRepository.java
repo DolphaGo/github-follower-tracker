@@ -5,5 +5,5 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FollowerRepository extends JpaRepository<Followers, Long> {
-    Optional<Followers> findByGithubId(Long githubId);
+    Optional<Followers> findByGithubLogin(String githubLogin);
 }

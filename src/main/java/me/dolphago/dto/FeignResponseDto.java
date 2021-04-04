@@ -17,6 +17,5 @@ import lombok.ToString;
 @JsonInclude(Include.NON_NULL)
 public class FeignResponseDto {
     private String login;
-    private Long id;
     private String html_url;
 }

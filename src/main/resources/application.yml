@@ -46,7 +46,7 @@ spring:
 
 
 ---
-
+# if you want to use mysql using this!
 spring:
   config:
     activate:
