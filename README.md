@@ -13,6 +13,13 @@ You can look this infomation.
 2. Someone who's following you(not you)
 3. Someone you are following(not the him)
 
+
+Also, you can use this application as batch application
+
+VM Option : `-Dspring.batch.job.names=checkFollowJob`
+ProgramArguments : handle = `{your github handle}` ex) handle=DolphaGo
+
+
 ## Version
 
 * Java : 11
