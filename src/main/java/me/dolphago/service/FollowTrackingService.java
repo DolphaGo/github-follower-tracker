@@ -63,13 +63,10 @@ public class FollowTrackingService {
     private List<Followers> createFollowerList(List<MemberDto> newFollowers, List<Neighbor> neighbors) {
         List<Followers> list = new ArrayList<>();
         for (MemberDto m : newFollowers) {
-            list.add(MemberDto.toFollowers(m));
+            list.add(MemberDto.toEntity(m, Followers.class));
         }
         for (Neighbor n : neighbors) {
-            list.add(Followers.builder()
-                              .url(n.getUrl())
-                              .githubLogin(n.getGithubLogin())
-                              .build());
+            list.add(new Followers(n.getGithubLogin(), n.getUrl()));
         }
         return list;
     }
@@ -110,13 +107,10 @@ public class FollowTrackingService {
     private List<Followings> createFollowingList(List<MemberDto> newFollowings, List<Neighbor> neighbors) {
         List<Followings> list = new ArrayList<>();
         for (MemberDto m : newFollowings) {
-            list.add(MemberDto.toFollowings(m));
+            list.add(MemberDto.toEntity(m, Followings.class));
         }
         for (Neighbor n : neighbors) {
-            list.add(Followings.builder()
-                               .url(n.getUrl())
-                               .githubLogin(n.getGithubLogin())
-                               .build());
+            list.add(new Followings(n.getGithubLogin(), n.getUrl()));
         }
         return list;
     }
@@ -132,10 +126,7 @@ public class FollowTrackingService {
             final List<FeignResponseDto> body = client.getFollowers(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
             List<Followers> collect = body.stream()
-                                          .map(dto -> Followers.builder()
-                                                               .githubLogin(dto.getLogin())
-                                                               .url(dto.getHtml_url())
-                                                               .build())
+                                          .map(dto -> new Followers(dto.getLogin(), dto.getHtml_url()))
                                           .collect(Collectors.toList());
             followers.addAll(collect);
         }
@@ -149,10 +140,7 @@ public class FollowTrackingService {
             final List<FeignResponseDto> body = client.getFollowings(handle, pageNum).getBody();
             if (body.isEmpty()) { break; }
             List<Followings> collect = body.stream()
-                                           .map(dto -> Followings.builder()
-                                                                 .githubLogin(dto.getLogin())
-                                                                 .url(dto.getHtml_url())
-                                                                 .build())
+                                           .map(dto -> new Followings(dto.getLogin(), dto.getHtml_url()))
                                            .collect(Collectors.toList());
             followings.addAll(collect);
         }

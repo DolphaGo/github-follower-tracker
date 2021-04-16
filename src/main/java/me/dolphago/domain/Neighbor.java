@@ -11,16 +11,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Neighbor extends BaseEntity {
+public class Neighbor extends BaseEntity<Neighbor> {
     @Id
     @GeneratedValue
     private Long id;
-    String githubLogin;
-    String url;
 
-    @Builder
     public Neighbor(String githubLogin, String url) {
-        this.githubLogin = githubLogin;
-        this.url = url;
+        super(githubLogin, url);
     }
 }

@@ -18,7 +18,5 @@ public class DolphagoApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DolphagoApplication.class, args);
-        Followers followers = Followers.builder()
-                                       .build();
     }
 }

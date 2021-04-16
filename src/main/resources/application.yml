@@ -23,6 +23,10 @@ spring:
 
 ---
 spring:
+  config:
+    activate:
+      on-profile: h2
+
   h2:
     console:
       enabled: true

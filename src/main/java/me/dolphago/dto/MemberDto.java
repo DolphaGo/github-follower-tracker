@@ -26,30 +26,28 @@ public class MemberDto {
     }
 
     public static Followers toFollowers(MemberDto memberDto) {
-        return Followers.builder()
-                        .githubLogin(memberDto.getGithubLogin())
-                        .url(memberDto.getUrl())
-                        .build();
+        return new Followers(memberDto.getGithubLogin(), memberDto.getUrl());
     }
 
     public static Followings toFollowings(MemberDto memberDto) {
-        return Followings.builder()
-                         .githubLogin(memberDto.getGithubLogin())
-                         .url(memberDto.getUrl())
-                         .build();
+        return new Followings(memberDto.getGithubLogin(), memberDto.getUrl());
     }
 
     public static Neighbor toNeighbor(MemberDto memberDto) {
-        return Neighbor.builder()
-                       .githubLogin(memberDto.getGithubLogin())
-                       .url(memberDto.getUrl())
-                       .build();
+        return new Neighbor(memberDto.getGithubLogin(), memberDto.getUrl());
     }
 
-//    public static <T> T toEntity(MemberDto memberDto, Class<T> cls) { // 이런식으로 구현하고 싶은데 ㅠ.
+    public static <T extends BaseEntity<T>> T toEntity(MemberDto memberDto, Class<T> cls) {
+        String simpleName = cls.getSimpleName();
+        System.out.println("========================simpleName : "+simpleName);
+        if(simpleName.equals("Followers")) return (T) toFollowers(memberDto);
+        else if(simpleName.equals("Followings")) return (T) toFollowings(memberDto);
+        else return (T) toNeighbor(memberDto);
+    }
+
+//         TODO : 일반화를 시도하려고 했으나 캐스팅이 안됨
 //        return cls.cast(T.builder()
-//                         .githubLogin(memberDto.getGithubLogin())
 //                         .url(memberDto.getUrl())
+//                         .githubLogin(memberDto.getGithubLogin())
 //                         .build());
-//    }
 }

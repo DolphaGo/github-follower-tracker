@@ -15,21 +15,15 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Entity
-public class ChangeData extends BaseEntity {
+public class ChangeData extends BaseEntity<ChangeData> {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String githubLogin;
-    private String url;
-
     @Enumerated(EnumType.STRING)
     private Relation status;
 
-    @Builder
     public ChangeData(String githubLogin, String url, Relation status) {
-        this.githubLogin = githubLogin;
-        this.url = url;
+        super(githubLogin, url);
         this.status = status;
     }
 }

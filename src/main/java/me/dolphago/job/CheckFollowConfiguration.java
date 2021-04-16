@@ -61,7 +61,7 @@ public class CheckFollowConfiguration {
                                      List<Neighbor> neighbors = responseDto.getNeighbors()
                                                                            .getList()
                                                                            .stream()
-                                                                           .map(MemberDto::toNeighbor)
+                                                                           .map(memberDto -> MemberDto.toEntity(memberDto, Neighbor.class))
                                                                            .collect(Collectors.toList());
 
                                      // followersByMap : <String, Follower> (only) 상대방이 팔로우하고 있어, 나는 그사람 안하고..
@@ -84,21 +84,13 @@ public class CheckFollowConfiguration {
         for (MemberDto memberDto : currentList) {
             String login = memberDto.getGithubLogin();
             if (!originalMap.containsKey(login)) { // 기존에 없었는데 새로 생긴 사람들
-                changeData.add(ChangeData.builder()
-                                         .githubLogin(login)
-                                         .url(memberDto.getUrl())
-                                         .status(Relation.NEW_FOLLOWER)
-                                         .build());
+                changeData.add(new ChangeData(login, memberDto.getUrl(), Relation.NEW_FOLLOWER));
             } else { originalMap.remove(login); }
         }
 
         if (!originalMap.isEmpty()) {
             for (Entry<String, Followers> m : originalMap.entrySet()) { // 기존엔 있었지만, 사라진 사람들
-                changeData.add(ChangeData.builder()
-                                         .githubLogin(m.getKey())
-                                         .url(m.getValue().getUrl())
-                                         .status(Relation.NEW_UNFOLLOWER)
-                                         .build());
+                changeData.add(new ChangeData(m.getKey(), m.getValue().getUrl(), Relation.NEW_UNFOLLOWER));
             }
         }
         return changeData;
@@ -109,21 +101,13 @@ public class CheckFollowConfiguration {
         for (MemberDto memberDto : currentList) {
             String login = memberDto.getGithubLogin();
             if (!originalMap.containsKey(login)) { // 기존에 없었는데 새로 생긴 사람들
-                changeData.add(ChangeData.builder()
-                                         .githubLogin(login)
-                                         .url(memberDto.getUrl())
-                                         .status(Relation.NEW_FOLLOWING)
-                                         .build());
+                changeData.add(new ChangeData(login, memberDto.getUrl(), Relation.NEW_FOLLOWING));
             } else { originalMap.remove(login); }
         }
 
         if (!originalMap.isEmpty()) {
             for (Entry<String, Followings> m : originalMap.entrySet()) { // 기존엔 있었지만, 사라진 사람들
-                changeData.add(ChangeData.builder()
-                                         .githubLogin(m.getKey())
-                                         .url(m.getValue().getUrl())
-                                         .status(Relation.NEW_UNFOLLOWING)
-                                         .build());
+                changeData.add(new ChangeData(m.getKey(), m.getValue().getUrl(), Relation.NEW_UNFOLLOWING));
             }
         }
         return changeData;
