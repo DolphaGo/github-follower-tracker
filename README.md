@@ -14,7 +14,7 @@ You can look this infomation.
 3. Someone you are following(not the him)
 
 
-Also, you can use this application as batch application
+Also, you can use this application as batch application(For Tracking)
 - VM Option : `-Dspring.batch.job.names=checkFollowJob`
 - ProgramArguments : handle = `{your github handle}` ex) handle=DolphaGo
 
