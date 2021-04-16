@@ -39,7 +39,6 @@ public class MemberDto {
 
     public static <T extends BaseEntity<T>> T toEntity(MemberDto memberDto, Class<T> cls) {
         String simpleName = cls.getSimpleName();
-        System.out.println("========================simpleName : "+simpleName);
         if(simpleName.equals("Followers")) return (T) toFollowers(memberDto);
         else if(simpleName.equals("Followings")) return (T) toFollowings(memberDto);
         else return (T) toNeighbor(memberDto);
