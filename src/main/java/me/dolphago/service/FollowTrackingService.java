@@ -58,14 +58,14 @@ public class FollowTrackingService {
 
     private List<Followers> createFollowerList(List<MemberDto> newFollowers, List<Neighbor> neighbors) {
         List<Followers> list = new ArrayList<>();
-        newFollowers.stream()
-                    .map(MemberDto::toFollowers)
-                    .forEach(f -> list.add(f));
+        newFollowers.forEach(memberDto -> {
+            Followers followers = MemberDto.toFollowers(memberDto);
+            list.add(followers);
+        });
 
-        neighbors.stream()
-                 .forEach(n -> {
-                     list.add(new Followers(n.getGithubLogin(), n.getUrl()));
-                 });
+        neighbors.forEach(n -> {
+            list.add(new Followers(n.getGithubLogin(), n.getUrl()));
+        });
         return list;
     }
 
@@ -82,10 +82,9 @@ public class FollowTrackingService {
                      .map(MemberDto::toFollowings)
                      .forEach(f -> list.add(f));
 
-        neighbors.stream()
-                 .forEach(n -> {
-                     list.add(new Followings(n.getGithubLogin(), n.getUrl()));
-                 });
+        neighbors.forEach(n -> {
+            list.add(new Followings(n.getGithubLogin(), n.getUrl()));
+        });
         return list;
     }
 
