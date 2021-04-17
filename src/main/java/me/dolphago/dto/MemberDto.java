@@ -36,13 +36,6 @@ public class MemberDto {
     public static Neighbor toNeighbor(MemberDto memberDto) {
         return new Neighbor(memberDto.getGithubLogin(), memberDto.getUrl());
     }
-    public static <T extends BaseEntity<T>> T toEntity(MemberDto memberDto, Class<T> cls) {
-        String simpleName = cls.getSimpleName();
-        if(simpleName.equals("Followers")) return (T) toFollowers(memberDto);
-        else if(simpleName.equals("Followings")) return (T) toFollowings(memberDto);
-        else return (T) toNeighbor(memberDto);
-    }
-
 
 //    TODO : 일반화를 시도하려고 했으나 캐스팅이 안됨
 //    public static <T extends BaseEntity<T>> T toEntity(MemberDto memberDto, Class<T> cls) {

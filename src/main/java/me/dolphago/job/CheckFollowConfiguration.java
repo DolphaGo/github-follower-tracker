@@ -61,11 +61,11 @@ public class CheckFollowConfiguration {
                                      List<Neighbor> neighbors = responseDto.getNeighbors()
                                                                            .getList()
                                                                            .stream()
-                                                                           .map(memberDto -> MemberDto.toEntity(memberDto, Neighbor.class))
+                                                                           .map(MemberDto::toNeighbor)
                                                                            .collect(Collectors.toList());
 
-                                     // followersByMap : <String, Follower> (only) 상대방이 팔로우하고 있어, 나는 그사람 안하고..
-                                     // followingsByMap: <String, Following> (only) 나만 그 사람을 팔로우하고있어.
+                                     // followersByMap : <String, Follower> (only) 상대방만 나를 팔로우
+                                     // followingsByMap: <String, Following> (only) 나만 그 사람을 팔로우
                                      followTrackingService.saveFollowers(followersByMap, responseDto.getOnlyFollowers().getList(), neighbors);
                                      followTrackingService.saveFollowings(followingsByMap, responseDto.getOnlyFollowings().getList(), neighbors);
                                      return RepeatStatus.FINISHED;

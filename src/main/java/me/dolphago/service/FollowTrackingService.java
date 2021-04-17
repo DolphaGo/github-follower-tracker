@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -52,71 +51,42 @@ public class FollowTrackingService {
 
     @Transactional
     public void saveFollowers(Map<String, Followers> originalFollowers, List<MemberDto> newFollowers, List<Neighbor> neighbors) {
-        List<Followers> newFollowersList = createFollowerList(newFollowers, neighbors);
-        for (Followers follower : newFollowersList) {
-            if (!originalFollowers.containsKey(follower.getGithubLogin())) {
-                followerRepository.save(follower);
-            }
-        }
+        createFollowerList(newFollowers, neighbors).stream()
+                                                   .filter(followers -> !originalFollowers.containsKey(followers.getGithubLogin()))
+                                                   .forEach(followers -> followerRepository.save(followers));
     }
 
     private List<Followers> createFollowerList(List<MemberDto> newFollowers, List<Neighbor> neighbors) {
         List<Followers> list = new ArrayList<>();
-        for (MemberDto m : newFollowers) {
-            list.add(MemberDto.toEntity(m, Followers.class));
-        }
-        for (Neighbor n : neighbors) {
-            list.add(new Followers(n.getGithubLogin(), n.getUrl()));
-        }
+        newFollowers.stream()
+                    .map(MemberDto::toFollowers)
+                    .forEach(f -> list.add(f));
+
+        neighbors.stream()
+                 .forEach(n -> {
+                     list.add(new Followers(n.getGithubLogin(), n.getUrl()));
+                 });
         return list;
     }
 
-    //TODO : 중복 코드를 줄이고 싶어서 다음과 같이 쓰고 싶은데, 에러 뿜뿜이다. 좋은 방법을 고안해보자.
-//    private <T extends BaseEntity> List<T> create(List<MemberDto> memberDtos, List<Neighbor> neighbors, Class<T> cls) {
-//        List<T> list = new ArrayList<>();
-//        for (MemberDto memberDto : memberDtos) {
-//            T t = MemberDto.toEntity(memberDto, cls);
-//            list.add(t);
-//        }
-//
-//        for (Neighbor neighbor : neighbors) {
-//            T convert = convert(neighbor, cls);
-//            list.add(convert);
-//        }
-//        return list;
-//    }
-//
-//    private <T extends BaseEntity> T convert(BaseEntity neighbor, Class<T> cls) {
-//        return (T) T.builder()
-//                    .url(neighbor.getUrl())
-//                    .githubLogin(neighbor.getGithubLogin())
-//                    .build();
-//
-//    }
-
     @Transactional
-    public <T> void saveFollowings(Map<String, Followings> originalFollowings, List<MemberDto> newFollowings, List<Neighbor> neighbors) {
-        List<Followings> followingList = createFollowingList(newFollowings, neighbors);
-        for (Followings following : followingList) {
-            if (!originalFollowings.containsKey(following.getGithubLogin())) {
-                followingRepository.save(following);
-            }
-        }
+    public void saveFollowings(Map<String, Followings> originalFollowings, List<MemberDto> newFollowings, List<Neighbor> neighbors) {
+        createFollowingList(newFollowings, neighbors).stream()
+                                                     .filter(followings -> !originalFollowings.containsKey(followings.getGithubLogin()))
+                                                     .forEach(followings -> followingRepository.save(followings));
     }
 
     private List<Followings> createFollowingList(List<MemberDto> newFollowings, List<Neighbor> neighbors) {
         List<Followings> list = new ArrayList<>();
-        for (MemberDto m : newFollowings) {
-            list.add(MemberDto.toEntity(m, Followings.class));
-        }
-        for (Neighbor n : neighbors) {
-            list.add(new Followings(n.getGithubLogin(), n.getUrl()));
-        }
-        return list;
-    }
+        newFollowings.stream()
+                     .map(MemberDto::toFollowings)
+                     .forEach(f -> list.add(f));
 
-    public Optional<?> getUser(String handle) {
-        return Optional.ofNullable(client.getUserInfo(handle).getBody());
+        neighbors.stream()
+                 .forEach(n -> {
+                     list.add(new Followings(n.getGithubLogin(), n.getUrl()));
+                 });
+        return list;
     }
 
     public List<Followers> getFollowersFromClient(String handle) {
