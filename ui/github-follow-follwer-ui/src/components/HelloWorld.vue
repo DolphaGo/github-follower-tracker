@@ -1,11 +1,14 @@
 <template>
   <div>
-    {{ data.message }}
+    <h1>{{ data.message }}</h1>
     <br />
-    <input v-model="handle">
-    <button @click="getData(handle)">Get</button>
 
-    <table>
+    <div class="input-group mb-3">
+      <input type="text" v-model="handle" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
+      <button class="btn btn-outline-secondary" type="button" id="button-addon2" @click="getData(handle)">Search</button>
+    </div>
+
+    <table class="table">
       <thead>
       <tr>
         <th scope="row">
