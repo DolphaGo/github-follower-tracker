@@ -1,5 +1,9 @@
-import { createApp } from "vue";
+import {createApp} from "vue";
 import App from "./App.vue";
-import router from "./router";
 
-createApp(App).use(router).mount("#app");
+async function bootstrapApplication(mainDiv: string): Promise<void> {
+  const app = createApp(App)
+  app.mount(mainDiv)
+}
+
+bootstrapApplication('#app').then().catch(err => console.log(err))
