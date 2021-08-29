@@ -1,24 +1,24 @@
 <template>
-  <div>
+  <div class="container">
     <h1>{{ data.message }}</h1>
     <br />
 
     <div class="input-group mb-3">
-      <input type="text" v-model="handle" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
+      <input type="text" v-model="handle" class="form-control" placeholder="Github handle" aria-label="Github handle" aria-describedby="button-addon2">
       <button class="btn btn-outline-secondary" type="button" id="button-addon2" @click="getData(handle)">Search</button>
     </div>
 
     <table class="table">
-      <thead>
+      <thead v-show="show">
       <tr>
         <th scope="row">
-          서로 이웃
+          서로 이웃 : {{info.neighbors.list?.length}} 명
         </th>
         <th scope="row">
-          나는 안하지만 나를 팔로우 하는 사람들
+          나는 안하지만 나를 팔로우 하는 사람들 : {{info.onlyFollowers.list?.length}} 명
         </th>
         <th scope="row">
-          상대는 안하지만, 나만 팔로우 하고 있는 사람들
+          상대는 안하지만, 나만 팔로우 하고 있는 사람들 : {{info.onlyFollowings.list?.length}} 명
         </th>
       </tr>
       </thead>
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, reactive} from "vue";
+import {defineComponent, reactive, ref} from "vue";
 import axios from "axios";
 
 export default defineComponent({
@@ -57,9 +57,10 @@ export default defineComponent({
   },
   setup() {
     const data = {
-      "message": "Github Follower 체크"
+      "message": "Github Follower Checker"
     }
 
+    const show = ref(false);
     const info = reactive<Info>({
       neighbors: [],
       onlyFollowers: [],
@@ -67,17 +68,17 @@ export default defineComponent({
     })
 
     function getData(handle: string) {
-      console.log("누굴 요청했는지?", handle)
-
+      show.value = false;
       axios.get("http://localhost:8080/check?handle=" + handle)
           .then(value => {
             info.neighbors = value.data.neighbors
             info.onlyFollowers = value.data.onlyFollowers
             info.onlyFollowings = value.data.onlyFollowings
           })
+      show.value = true;
     }
 
-    return {data, info, getData};
+    return {data, info, getData, show};
   }
 });
 </script>
