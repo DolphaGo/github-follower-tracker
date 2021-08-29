@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Configuration;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.dolphago.domain.BaseEntity;
 import me.dolphago.domain.ChangeData;
 import me.dolphago.domain.Followers;
 import me.dolphago.domain.Followings;
