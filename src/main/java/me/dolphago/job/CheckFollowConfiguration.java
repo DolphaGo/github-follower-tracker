@@ -41,13 +41,14 @@ public class CheckFollowConfiguration {
     @Bean
     public Job checkFollowJob() {
         return jobBuilderFactory.get("checkFollowJob")
-                                .start(checkFollowStep(null))
+                                .start(checkFollowStep(null, null))
                                 .build();
     }
 
     @Bean
     @JobScope
-    public Step checkFollowStep(@Value("#{jobParameters[handle] ?: 'DolphaGo'}") String handle) {
+    public Step checkFollowStep(@Value("#{jobParameters[date]}") String date, @Value("#{jobParameters[handle] ?: 'DolphaGo'}") String handle) {
+        log.info("============= {} ===============", date);
         return stepBuilderFactory.get("checkFollowStep")
                                  .tasklet((contribution, chunkContext) -> {
                                      ResponseDto responseDto = followTrackingService.checkFollow(handle); // each, only-follower, only-following from API
@@ -85,7 +86,7 @@ public class CheckFollowConfiguration {
             String login = memberDto.getGithubLogin();
             if (!originalMap.containsKey(login)) { // 기존에 없었는데 새로 생긴 사람들
                 changeData.add(new ChangeData(login, memberDto.getUrl(), Relation.NEW_FOLLOWER));
-            } else { originalMap.remove(login); }
+            } else {originalMap.remove(login);}
         }
 
         if (!originalMap.isEmpty()) {
@@ -102,7 +103,7 @@ public class CheckFollowConfiguration {
             String login = memberDto.getGithubLogin();
             if (!originalMap.containsKey(login)) { // 기존에 없었는데 새로 생긴 사람들
                 changeData.add(new ChangeData(login, memberDto.getUrl(), Relation.NEW_FOLLOWING));
-            } else { originalMap.remove(login); }
+            } else {originalMap.remove(login);}
         }
 
         if (!originalMap.isEmpty()) {
