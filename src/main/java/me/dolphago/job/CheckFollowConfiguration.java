@@ -48,7 +48,7 @@ public class CheckFollowConfiguration {
 
     @Bean
     @JobScope
-    public Step checkFollowStep(@Value("#{jobParameters[handle] ?: 'DolphaGo;}") String handle) {
+    public Step checkFollowStep(@Value("#{jobParameters[handle] ?: 'DolphaGo'}") String handle) {
         return stepBuilderFactory.get("checkFollowStep")
                                  .tasklet((contribution, chunkContext) -> {
                                      ResponseDto responseDto = followTrackingService.checkFollow(handle); // each, only-follower, only-following from API
