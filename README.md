@@ -1,5 +1,7 @@
 # 😉You can check your Github Following & Follower!
 
+### Try it => [Demo Test](http://dolphago.ga)
+
 ### Aren't you curious about who is following you or who are you following?🤔
 
 ### I have a follow/unfollow check service on Instagram, but it's not on GitHub, so I just made it for fun.
@@ -29,4 +31,3 @@ Also, you can use this application as batch application(For Tracking)
 ## Demo
 
 ![img.png](img1.png)
-![img.png](img.png)

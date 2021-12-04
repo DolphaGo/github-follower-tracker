@@ -7,7 +7,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import lombok.RequiredArgsConstructor;
-import me.dolphago.domain.Followers;
 
 @RequiredArgsConstructor
 @EnableBatchProcessing
@@ -15,7 +14,6 @@ import me.dolphago.domain.Followers;
 @EnableFeignClients
 @SpringBootApplication
 public class DolphagoApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(DolphagoApplication.class, args);
     }

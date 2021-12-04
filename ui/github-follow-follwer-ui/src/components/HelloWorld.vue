@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>{{ data.message }}</h1>
+    <span><h1>{{ data.message }} </h1><h5><a href="https://github.com/DolphaGo/github-follow-unfollow">by DolphaGo</a></h5></span>
     <br />
 
     <div class="input-group mb-3">
