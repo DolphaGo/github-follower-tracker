@@ -15,6 +15,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,7 @@ public class CheckFollowConfiguration {
 
     @Bean
     @JobScope
-    public Step checkFollowStep(@Value("#{jobParameters[handle]}") String handle) {
+    public Step checkFollowStep(@Value("#{jobParameters[handle] ?: 'DolphaGo;}") String handle) {
         return stepBuilderFactory.get("checkFollowStep")
                                  .tasklet((contribution, chunkContext) -> {
                                      ResponseDto responseDto = followTrackingService.checkFollow(handle); // each, only-follower, only-following from API

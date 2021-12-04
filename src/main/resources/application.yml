@@ -56,8 +56,12 @@ spring:
     activate:
       on-profile: mysql
 
+# Table 'github_follow.batch_job_instance' doesn't exist 해결
+  batch:
+    initialize-schema: always
+
   datasource:
-    url: jdbc:mysql://localhost:3306/testdb?serverTimezone=UTC&autoReconnection=true&useSSL=false
+    url: jdbc:mysql://localhost:3306/github_follow?serverTimezone=UTC&autoReconnection=true&useSSL=false
     username: test
     password: test
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -65,7 +69,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         default_batch_fetch_size: 1000
