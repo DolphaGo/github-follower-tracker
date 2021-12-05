@@ -18,9 +18,9 @@ You can look this infomation.
 
 Also, you can use this application as batch application(For Tracking)
 - VM Option : `-Dspring.batch.job.names=checkFollowJob`
-- ProgramArguments : handle = `{your github handle}` ex) handle=DolphaGo
-
-
+- ProgramArguments : handle=`{your github handle}` date=`{any form of date}` ex) handle=DolphaGo date=20211206
+  - `date` parameter exist for distinguish the batch application.
+  
 ## Version
 
 * Java : 11
@@ -30,4 +30,4 @@ Also, you can use this application as batch application(For Tracking)
 
 ## Demo
 
-![img.png](img1.png)
+![img.png](images/img1.png)
