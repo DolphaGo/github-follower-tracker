@@ -33,4 +33,14 @@ public class BaseEntity<T extends BaseEntity> {
         this.githubLogin = githubLogin;
         this.url = url;
     }
+
+    @Override
+    public String toString() {
+        return "BaseEntity{" +
+               "createAt=" + createAt +
+               ", modifiedAt=" + modifiedAt +
+               ", githubLogin='" + githubLogin + '\'' +
+               ", url='" + url + '\'' +
+               '}';
+    }
 }

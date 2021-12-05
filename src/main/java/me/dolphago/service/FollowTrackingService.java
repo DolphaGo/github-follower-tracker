@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -12,11 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.dolphago.domain.BaseEntity;
+import me.dolphago.domain.History;
+import me.dolphago.domain.HistoryRepository;
 import me.dolphago.domain.FollowerRepository;
-import me.dolphago.domain.Followers;
+import me.dolphago.domain.Follower;
 import me.dolphago.domain.FollowingRepository;
-import me.dolphago.domain.Followings;
-import me.dolphago.domain.Neighbor;
+import me.dolphago.domain.Following;
+import me.dolphago.domain.Relation;
 import me.dolphago.dto.FeignResponseDto;
 import me.dolphago.dto.MemberDto;
 import me.dolphago.dto.ResponseDto;
@@ -30,87 +34,91 @@ public class FollowTrackingService {
     private final GithubFeignClient client;
     private final FollowerRepository followerRepository;
     private final FollowingRepository followingRepository;
+    private final HistoryRepository historyRepository;
 
-    public List<Followers> getFollowersFromClient() {
+    public List<Follower> getAllFollowers() {
         return followerRepository.findAll();
     }
 
-    public List<Followings> getFollowingsFromClient() {
+    public List<Following> getAllFollowings() {
         return followingRepository.findAll();
     }
 
-    public Map<String, Followers> getFollowersByMap() {
-        return getFollowersFromClient().stream()
-                                       .collect(Collectors.toMap(o -> o.getGithubLogin(), o -> o));
-    }
-
-    public Map<String, Followings> getFollowingsByMap() {
-        return getFollowingsFromClient().stream()
-                                        .collect(Collectors.toMap(o -> o.getGithubLogin(), o -> o));
-    }
-
     @Transactional
-    public void saveFollowers(Map<String, Followers> originalFollowers, List<MemberDto> newFollowers, List<Neighbor> neighbors) {
-        createFollowerList(newFollowers, neighbors).stream()
-                                                   .filter(followers -> !originalFollowers.containsKey(followers.getGithubLogin()))
-                                                   .forEach(followers -> followerRepository.save(followers));
+    public void update(List<History> historyList) {
+        // 새로운 팔로워 저장
+        followerRepository.saveAll(getFollowerOf(historyList, Relation.NEW_FOLLOWER));
+
+        // 새로운 언팔로워 삭제
+        followerRepository.deleteAll(getFollowerOf(historyList, Relation.NEW_UNFOLLOWER));
+
+        // 새로운 팔로잉 저장
+        followingRepository.saveAll(getFollowingOf(historyList, Relation.NEW_FOLLOWING));
+
+        // 새로운 언팔로잉 삭제
+        followingRepository.deleteAll(getFollowingOf(historyList, Relation.NEW_UNFOLLOWING));
+
+        // 히스토리 저장
+        historyRepository.saveAll(historyList);
     }
 
-    private List<Followers> createFollowerList(List<MemberDto> newFollowers, List<Neighbor> neighbors) {
-        List<Followers> list = new ArrayList<>();
-        newFollowers.forEach(memberDto -> {
-            Followers followers = MemberDto.toFollowers(memberDto);
-            list.add(followers);
-        });
-
-        neighbors.forEach(n -> {
-            list.add(new Followers(n.getGithubLogin(), n.getUrl()));
-        });
-        return list;
+    private List<Follower> getFollowerOf(final List<History> historyList, final Relation followerRelation) {
+        return historyList.stream()
+                          .filter(history -> history.getRelation() == followerRelation)
+                          .map(history -> {
+                                    switch (followerRelation) {
+                                        case NEW_FOLLOWER:
+                                            return new Follower(history.getGithubLogin(), history.getUrl());
+                                        case NEW_UNFOLLOWER:
+                                            return followerRepository.findByGithubLogin(history.getGithubLogin());
+                                        default:
+                                            return null;
+                                    }
+                                })
+                          .filter(Objects::nonNull)
+                          .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void saveFollowings(Map<String, Followings> originalFollowings, List<MemberDto> newFollowings, List<Neighbor> neighbors) {
-        createFollowingList(newFollowings, neighbors).stream()
-                                                     .filter(followings -> !originalFollowings.containsKey(followings.getGithubLogin()))
-                                                     .forEach(followings -> followingRepository.save(followings));
+    private List<Following> getFollowingOf(final List<History> historyList, final Relation followingRelation) {
+        return historyList.stream()
+                          .filter(history -> history.getRelation() == followingRelation)
+                          .map(history -> {
+                                    switch (followingRelation) {
+                                        case NEW_FOLLOWING:
+                                            return new Following(history.getGithubLogin(), history.getUrl());
+                                        case NEW_UNFOLLOWING:
+                                            return followingRepository.findByGithubLogin(history.getGithubLogin());
+                                        default:
+                                            return null;
+                                    }
+                                })
+                          .filter(Objects::nonNull)
+                          .collect(Collectors.toList());
     }
 
-    private List<Followings> createFollowingList(List<MemberDto> newFollowings, List<Neighbor> neighbors) {
-        List<Followings> list = new ArrayList<>();
-        newFollowings.stream()
-                     .map(MemberDto::toFollowings)
-                     .forEach(f -> list.add(f));
-
-        neighbors.forEach(n -> {
-            list.add(new Followings(n.getGithubLogin(), n.getUrl()));
-        });
-        return list;
-    }
-
-    public List<Followers> getFollowersFromClient(String handle) {
+    public List<Follower> getAllFollowers(String handle) {
         log.info("[Feign] github api로부터 {}의 follower 정보를 가져옵니다.", handle);
-        List<Followers> followers = new ArrayList<>();
+        List<Follower> followers = new ArrayList<>();
         for (int pageNum = 1; ; pageNum++) {
             final List<FeignResponseDto> body = client.getFollowers(handle, pageNum).getBody();
-            if (body.isEmpty()) { break; }
-            List<Followers> collect = body.stream()
-                                          .map(dto -> new Followers(dto.getLogin(), dto.getHtml_url()))
-                                          .collect(Collectors.toList());
+            if (body.isEmpty()) {break;}
+            List<Follower> collect = body.stream()
+                                         .map(dto -> new Follower(dto.getLogin(), dto.getHtml_url()))
+                                         .collect(Collectors.toList());
             followers.addAll(collect);
         }
         return followers;
     }
 
-    public List<Followings> getFollowingsFromClient(String handle) {
+    public List<Following> getAllFollowings(String handle) {
         log.info("[Feign] github api로부터 {}의 following 정보를 가져옵니다.", handle);
-        List<Followings> followings = new ArrayList<>();
+        List<Following> followings = new ArrayList<>();
         for (int pageNum = 1; ; pageNum++) {
             final List<FeignResponseDto> body = client.getFollowings(handle, pageNum).getBody();
-            if (body.isEmpty()) { break; }
-            List<Followings> collect = body.stream()
-                                           .map(dto -> new Followings(dto.getLogin(), dto.getHtml_url()))
-                                           .collect(Collectors.toList());
+            if (body.isEmpty()) {break;}
+            List<Following> collect = body.stream()
+                                          .map(dto -> new Following(dto.getLogin(), dto.getHtml_url()))
+                                          .collect(Collectors.toList());
             followings.addAll(collect);
         }
         return followings;
@@ -119,15 +127,15 @@ public class FollowTrackingService {
     public ResponseDto checkFollow(String handle) {
         ResponseDto responseDto = ResponseDto.create();
 
-        Map<String, Followers> followerMap = getFollowersFromClient(handle).stream()
-                                                                           .collect(Collectors.toMap(o -> o.getGithubLogin(), o -> o));
+        Map<String, Follower> followerMap = getAllFollowers(handle).stream()
+                                                                   .collect(Collectors.toMap(BaseEntity::getGithubLogin, Function.identity()));
 
-        Map<String, Followings> followingMap = getFollowingsFromClient(handle).stream()
-                                                                              .collect(Collectors.toMap(o -> o.getGithubLogin(), o -> o));
+        Map<String, Following> followingMap = getAllFollowings(handle).stream()
+                                                                      .collect(Collectors.toMap(BaseEntity::getGithubLogin, Function.identity()));
 
         Map<String, BaseEntity> eachNeighborMap = new HashMap<>();
 
-        responseDto.getNeighbors().create(
+        responseDto.getNeighbors().set(
                 followerMap.entrySet()
                            .stream()
                            .filter(e -> followingMap.containsKey(e.getKey()))
@@ -137,20 +145,21 @@ public class FollowTrackingService {
                            }).map(f -> new MemberDto(f.getGithubLogin(), f.getUrl()))
                            .collect(Collectors.toList()));
 
-        responseDto.getOnlyFollowers().create(followerMap.entrySet()
-                                                         .stream()
-                                                         .filter(e -> !eachNeighborMap.containsKey(e.getKey()))
-                                                         .map(e -> e.getValue())
-                                                         .map(followers -> MemberDto.from(followers.getGithubLogin(), followers.getUrl()))
-                                                         .collect(Collectors.toList()));
+        responseDto.getOnlyFollowers().set(followerMap.entrySet()
+                                                      .stream()
+                                                      .filter(e -> !eachNeighborMap.containsKey(e.getKey()))
+                                                      .map(e -> e.getValue())
+                                                      .map(followers -> MemberDto.from(followers.getGithubLogin(), followers.getUrl()))
+                                                      .collect(Collectors.toList()));
 
-        responseDto.getOnlyFollowings().create(followingMap.entrySet()
-                                                           .stream()
-                                                           .filter(e -> !eachNeighborMap.containsKey(e.getKey()))
-                                                           .map(e -> e.getValue())
-                                                           .map(followers -> MemberDto.from(followers.getGithubLogin(), followers.getUrl()))
-                                                           .collect(Collectors.toList()));
+        responseDto.getOnlyFollowings().set(followingMap.entrySet()
+                                                        .stream()
+                                                        .filter(e -> !eachNeighborMap.containsKey(e.getKey()))
+                                                        .map(e -> e.getValue())
+                                                        .map(followers -> MemberDto.from(followers.getGithubLogin(), followers.getUrl()))
+                                                        .collect(Collectors.toList()));
 
         return responseDto;
     }
+
 }

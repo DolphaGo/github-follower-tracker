@@ -14,7 +14,7 @@ public class ResponseItem {
     private int count;
     private List<MemberDto> list = new ArrayList<>();
 
-    public void create(List<MemberDto> list){
+    public void set(List<MemberDto> list){
         this.list = list;
         this.count = list.size();
     }

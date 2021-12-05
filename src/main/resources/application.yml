@@ -51,6 +51,7 @@ spring:
 
 ---
 # if you want to use mysql using this!
+# use: -Dspring.profiles.active=mysql
 spring:
   config:
     activate:
@@ -69,7 +70,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         default_batch_fetch_size: 1000

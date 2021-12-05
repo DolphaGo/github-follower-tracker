@@ -8,5 +8,4 @@ public enum Relation {
     NEW_FOLLOWING,
     NEW_UNFOLLOWER,
     NEW_UNFOLLOWING,
-    NEIGHBOR;
 }
