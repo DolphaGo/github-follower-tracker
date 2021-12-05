@@ -20,6 +20,8 @@ Also, you can use this application as batch application(For Tracking)
 - VM Option : `-Dspring.batch.job.names=checkFollowJob`
 - ProgramArguments : handle=`{your github handle}` date=`{any form of date}` ex) handle=DolphaGo date=20211206
   - `date` parameter exist for distinguish the batch application.
+- I'm set mysql db in my local pc, but you can use free for your environment.
+  - go to [application.yml](/src/main/resources/application.yml). Change it to suit your situation!
   
 ## Version
 
