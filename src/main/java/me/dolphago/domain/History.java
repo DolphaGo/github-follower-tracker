@@ -16,8 +16,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Entity
-public class History {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class History extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String githubLogin;
