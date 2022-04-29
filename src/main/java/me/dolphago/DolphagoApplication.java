@@ -15,6 +15,6 @@ import lombok.RequiredArgsConstructor;
 @SpringBootApplication
 public class DolphagoApplication {
     public static void main(String[] args) {
-        SpringApplication.run(DolphagoApplication.class, args);
+        System.exit(SpringApplication.exit(SpringApplication.run(DolphagoApplication.class, args)));
     }
 }
