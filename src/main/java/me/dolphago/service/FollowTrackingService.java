@@ -128,10 +128,10 @@ public class FollowTrackingService {
         ResponseDto responseDto = ResponseDto.create();
 
         Map<String, Follower> followerMap = getAllFollowers(handle).stream()
-                                                                   .collect(Collectors.toMap(BaseEntity::getGithubLogin, Function.identity()));
+                                                                   .collect(Collectors.toMap(Follower::getGithubLogin, Function.identity()));
 
         Map<String, Following> followingMap = getAllFollowings(handle).stream()
-                                                                      .collect(Collectors.toMap(BaseEntity::getGithubLogin, Function.identity()));
+                                                                      .collect(Collectors.toMap(Following::getGithubLogin, Function.identity()));
 
         Map<String, BaseEntity> eachNeighborMap = new HashMap<>();
 
