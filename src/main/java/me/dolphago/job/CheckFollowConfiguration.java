@@ -12,6 +12,9 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +41,7 @@ public class CheckFollowConfiguration {
     @Bean
     public Job checkFollowJob() {
         return jobBuilderFactory.get("checkFollowJob")
+                                .incrementer(new RunIdIncrementer())
                                 .start(checkFollowStep(null, null))
                                 .build();
     }
@@ -47,25 +51,30 @@ public class CheckFollowConfiguration {
     public Step checkFollowStep(@Value("#{jobParameters[date]}") String date, @Value("#{jobParameters[handle] ?: 'DolphaGo'}") String handle) {
         log.info("============= {} ===============", date);
         return stepBuilderFactory.get("checkFollowStep")
-                                 .tasklet((contribution, chunkContext) -> {
-                                     ResponseDto responseDto = followTrackingService.checkFollow(handle); // each, only-follower, only-following from API
+                                 .tasklet(tracking(handle))
+                                 .build();
+    }
 
-                                     log.info("###################### From API(Recent status) ######################");
-                                     log.info("{}", responseDto);
+    public Tasklet tracking(final String handle) {
+        return (contribution, chunkContext) -> {
+            ResponseDto responseDto = followTrackingService.checkFollow(handle); // each, only-follower, only-following from API
 
-                                     log.info("###################### From DB ##########################");
-                                     final List<Follower> allFollowers = followTrackingService.getAllFollowers();
-                                     final List<Following> allFollowings = followTrackingService.getAllFollowings();
+            log.info("###################### From API(Recent status) ######################");
+            log.info("{}", responseDto);
 
-                                     log.info("#################### Follower = {} #######################", allFollowers.size());
-                                     log.info("{}", allFollowers);
+            log.info("###################### From DB ##########################");
+            final List<Follower> allFollowers = followTrackingService.getAllFollowers();
+            final List<Following> allFollowings = followTrackingService.getAllFollowings();
 
-                                     log.info("#################### Following = {} #######################", allFollowings.size());
-                                     log.info("{}", allFollowings);
+            log.info("#################### Follower = {} #######################", allFollowers.size());
+            log.info("{}", allFollowers);
 
-                                     followTrackingService.update(createChangedStatusList(responseDto, allFollowers, allFollowings));
-                                     return RepeatStatus.FINISHED;
-                                 }).build();
+            log.info("#################### Following = {} #######################", allFollowings.size());
+            log.info("{}", allFollowings);
+
+            followTrackingService.update(createChangedStatusList(responseDto, allFollowers, allFollowings));
+            return RepeatStatus.FINISHED;
+        };
     }
 
     private List<History> createChangedStatusList(final ResponseDto responseDto, final List<Follower> allFollowers, final List<Following> allFollowings) {
