@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 @EnableJpaAuditing
 @EnableFeignClients
 @SpringBootApplication
-public class DolphagoApplication {
+public class GithubFollowerTrackerApplication {
     public static void main(String[] args) {
-        SpringApplication.run(DolphagoApplication.class, args);
+        SpringApplication.run(GithubFollowerTrackerApplication.class, args);
     }
 }
