@@ -4,7 +4,7 @@
     <br />
 
     <div class="input-group mb-3">
-      <input type="text" v-model="handle" class="form-control" placeholder="Github handle" aria-label="Github handle" aria-describedby="button-addon2">
+      <input type="text" v-model="handle" class="form-control" placeholder="Github handle" aria-label="Github handle" aria-describedby="button-addon2" @keyup.enter="getData(handle)">
       <button class="btn btn-outline-secondary" type="button" id="button-addon2" @click="getData(handle)">Search</button>
     </div>
 
@@ -12,13 +12,13 @@
       <thead v-show="show">
       <tr>
         <th scope="row">
-          서로 이웃 : {{info.neighbors.list?.length}} 명
+          Mutual Followers : {{info.neighbors.list?.length}}
         </th>
         <th scope="row">
-          나는 안하지만 나를 팔로우 하는 사람들 : {{info.onlyFollowers.list?.length}} 명
+          Your Followers : {{info.onlyFollowers.list?.length}}
         </th>
         <th scope="row">
-          상대는 안하지만, 나만 팔로우 하고 있는 사람들 : {{info.onlyFollowings.list?.length}} 명
+          Your Followings : {{info.onlyFollowings.list?.length}}
         </th>
       </tr>
       </thead>

@@ -15,8 +15,7 @@ So, I created this just for fun! 🎉
 It's super simple! Just enter **your GitHub handle** and check the details.
 
 1️⃣ **Run the Server**  
-2️⃣ Open your browser and visit: `http://localhost:8080/check?handle={your_github_handle}`
-
+2️⃣ Open your browser and visit: http://localhost:8080/check?handle={your_github_handle}  
 3️⃣ See the details:
 - **Mutual Followers** (Each other's neighbors 👥)
 - **Your Followers** (People who follow you but you don’t follow back 😲)
@@ -60,8 +59,10 @@ Want to run the frontend locally? Follow these steps:
  ```sh
  pnpm run dev
 ```
-
 3️⃣ Open your browser and start exploring!
+
+![Image1](images/img1.png)
+![img.png](images/img.png)
 
 ---
 

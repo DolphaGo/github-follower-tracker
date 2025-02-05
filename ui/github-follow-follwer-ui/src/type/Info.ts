@@ -1,14 +1,10 @@
-declare interface Info {
-  neighbors : List<Member>
-  onlyFollowers : List<Member>
-  onlyFollowings : List<Member>
+interface Info {
+  neighbors: { list: Member[] };
+  onlyFollowers: { list: Member[] };
+  onlyFollowings: { list: Member[] };
 }
 
-declare interface Member{
-  githubLogin : string
-  url : string
-}
-
-declare interface List<T>{
-  list : T[]
+interface Member {
+  githubLogin: string;
+  url: string;
 }
