@@ -62,6 +62,7 @@ Want to run the frontend locally? Follow these steps:
 3️⃣ Open your browser and start exploring!
 
 ![Image1](images/img1.png)
+![img.png](images/img2.png)
 ![img.png](images/img.png)
 
 ---
