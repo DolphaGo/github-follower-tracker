@@ -57,9 +57,10 @@ Want to run the frontend locally? Follow these steps:
 1️⃣ Navigate to the frontend directory  
 2️⃣ Run:
  ```sh
+ cd ui/github-follow-follwer-ui/
  pnpm run dev
 ```
-3️⃣ Open your browser and start exploring!
+3️⃣ Open your browser and start exploring! : http://localhost:3000
 
 ![Image1](images/img1.png)
 ![img.png](images/img2.png)
