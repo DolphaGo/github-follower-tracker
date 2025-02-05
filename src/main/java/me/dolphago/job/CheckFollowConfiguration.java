@@ -9,11 +9,11 @@ import java.util.function.Function;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,30 +29,34 @@ import me.dolphago.domain.Relation;
 import me.dolphago.dto.MemberDto;
 import me.dolphago.dto.ResponseDto;
 import me.dolphago.service.FollowTrackingService;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
 public class CheckFollowConfiguration {
-    private final JobBuilderFactory jobBuilderFactory;
-    private final StepBuilderFactory stepBuilderFactory;
     private final FollowTrackingService followTrackingService;
+    private final PlatformTransactionManager transactionManager;
 
     @Bean
-    public Job checkFollowJob() {
-        return jobBuilderFactory.get("checkFollowJob")
-                                .incrementer(new RunIdIncrementer())
-                                .start(checkFollowStep(null, null))
-                                .build();
+    public Job checkFollowJob(JobRepository jobRepository) {
+        return new JobBuilder("checkFollowJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
+                .start(checkFollowStep(null, null, jobRepository))
+                .build();
     }
 
     @Bean
     @JobScope
-    public Step checkFollowStep(@Value("#{jobParameters[date]}") String date, @Value("#{jobParameters[handle] ?: 'DolphaGo'}") String handle) {
+    public Step checkFollowStep(
+            @Value("#{jobParameters[date]}") String date,
+            @Value("#{jobParameters[handle] ?: 'DolphaGo'}") String handle
+            , JobRepository jobRepository
+    ) {
         log.info("============= {} ===============", date);
-        return stepBuilderFactory.get("checkFollowStep")
-                                 .tasklet(tracking(handle))
-                                 .build();
+        return new StepBuilder("checkFollowStep", jobRepository)
+                .tasklet(tracking(handle), transactionManager)
+                .build();
     }
 
     public Tasklet tracking(final String handle) {
@@ -107,8 +111,8 @@ public class CheckFollowConfiguration {
 
         // 기존 Following으로 부터 지워지지 않은 현재 Followings => NEW_FOLLOWING
         currentFollowings.values()
-                         .stream().map(memberDto -> new History(memberDto.getGithubLogin(), memberDto.getUrl(), Relation.NEW_FOLLOWING))
-                         .forEach(list::add);
+                .stream().map(memberDto -> new History(memberDto.getGithubLogin(), memberDto.getUrl(), Relation.NEW_FOLLOWING))
+                .forEach(list::add);
     }
 
     private void followerCheck(final ResponseDto responseDto, final List<Follower> allFollowers, final List<History> list) {
@@ -130,8 +134,8 @@ public class CheckFollowConfiguration {
 
         // 기존 Follower으로 부터 지워지지 않은 현재 Follower => NEW_FOLLOWER
         currentFollowers.values()
-                        .stream().map(memberDto -> new History(memberDto.getGithubLogin(), memberDto.getUrl(), Relation.NEW_FOLLOWER))
-                        .forEach(list::add);
+                .stream().map(memberDto -> new History(memberDto.getGithubLogin(), memberDto.getUrl(), Relation.NEW_FOLLOWER))
+                .forEach(list::add);
     }
 
     private Map<String, MemberDto> getCurrentFollowings(final ResponseDto responseDto) {
