@@ -1,35 +1,69 @@
-# 😉You can check your Github Following & Follower!
+# 😉 Check Your GitHub Following & Follower!
 
-### Try it => [Demo Test](http://dolphago.ga)
+### 🎯 Try it Now! 👉 [Demo Test](http://dolphago.ga)
 
-### Aren't you curious about who is following you or who are you following?🤔
+---
 
-### I have a follow/unfollow check service on Instagram, but it's not on GitHub, so I just made it for fun.
+## 🔍 Curious about who is following you or who you are following? 🤔
+
+There are many follow/unfollow check services for Instagram, but not for GitHub.  
+So, I created this just for fun! 🎉
+
+---
+
+## 🚀 How to Use
+It's super simple! Just enter **your GitHub handle** and check the details.
+
+1️⃣ **Run the Server**  
+2️⃣ Open your browser and visit: `http://localhost:8080/check?handle={your_github_handle}`
+3️⃣ See the details:
+- **Mutual Followers** (Each other's neighbors 👥)
+- **Your Followers** (People who follow you but you don’t follow back 😲)
+- **Your Followings** (People you follow but don’t follow you back 😢)
+
+---
+
+## 🖥️ Running as a Batch Application (For Tracking)
+If you want to track follow/unfollow trends over time, you can run it as a batch process:
+
+- **VM Option:**
+  - -Dspring.batch.job.names=checkFollowJob
+- **Program Arguments:**
+  - `handle={\"value\":\"${githubHandle}\"}, date={\"value\":\"${the day you're running at}\"}`
+  - Example:
+  ```
+  handle={\"value\":\"DolphaGo\"}, date={\"value\":\"2025-02-05\"}
+  ```
+- The `date` parameter helps distinguish different batch runs.
 
 
-### It is very Simple. All you have to do is type `your GitHub handle`.
-Just Try `Run Server` and type `http://localhost:8080/check?handle={your github handle}` on your browser.
+## 🖥️ Or You Can Run It as a JAR
 
-You can look this information.
-1. each other's neighbors
-2. Someone who's following you(not you)
-3. Someone you are following(not the him)
+```shell
+gradlew clean build
+java -jar build/libs/github-follower-tracker.jar jobParameters="handle={\"value\":\"DolphaGo\"}, date={\"value\":\"2025-02-05\"}"
+```
+---
 
+## 🛠️ Configuration
+- The app uses **MySQL** by default, but you can customize it.
+- Modify the configuration in **[`application.yml`](/src/main/resources/application.yml)** to fit your environment.
 
-Also, you can use this application as batch application(For Tracking)
-- VM Option : `-Dspring.batch.job.names=checkFollowJob`
-- ProgramArguments : handle=`{your github handle}` date=`{any form of date}` ex) handle=DolphaGo date=20211206
-  - `date` parameter exist for distinguish the batch application.
-- I'm set mysql db in my local pc, but you can use free for your environment.
-  - go to [application.yml](/src/main/resources/application.yml). Change it to suit your situation!
-  
-## Version
+---
 
-* Java : 21
-* Spring Boot : 3.4.2
-* Build Tool : Gradle
+## 🎨 Frontend Setup
+Want to run the frontend locally? Follow these steps:
 
+1️⃣ Navigate to the frontend directory  
+2️⃣ Run:
+ ```sh
+ pnpm run dev
+```
 
-## Demo
+3️⃣ Open your browser and start exploring!
 
-![img.png](images/img1.png)
+---
+
+📌 Tech Stack & Version Info 
+- Spring Boot: 3.4.2 
+- Build Tool: Gradle(Backend), Vite(Frontend)
