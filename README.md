@@ -16,6 +16,7 @@ It's super simple! Just enter **your GitHub handle** and check the details.
 
 1️⃣ **Run the Server**  
 2️⃣ Open your browser and visit: `http://localhost:8080/check?handle={your_github_handle}`
+
 3️⃣ See the details:
 - **Mutual Followers** (Each other's neighbors 👥)
 - **Your Followers** (People who follow you but you don’t follow back 😲)
