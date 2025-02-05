@@ -22,63 +22,53 @@
         </th>
       </tr>
       </thead>
-    <tbody>
-    <td>
-      <tr v-for ="neighbor in info.neighbors.list">
-        <a :href="neighbor.url">{{ neighbor.githubLogin }}</a>
-      </tr>
-    </td>
-    <td>
-      <tr v-for ="follower in info.onlyFollowers.list">
-        <a :href="follower.url">{{ follower.githubLogin }}</a>
-      </tr>
-    </td>
-    <td>
-      <tr v-for ="following in info.onlyFollowings.list">
-        <a :href="following.url">{{ following.githubLogin }}</a>
-      </tr>
-    </td>
-    </tbody>
+      <tbody>
+      <td>
+        <tr v-for ="neighbor in info.neighbors.list">
+          <a :href="neighbor.url">{{ neighbor.githubLogin }}</a>
+        </tr>
+      </td>
+      <td>
+        <tr v-for ="follower in info.onlyFollowers.list">
+          <a :href="follower.url">{{ follower.githubLogin }}</a>
+        </tr>
+      </td>
+      <td>
+        <tr v-for ="following in info.onlyFollowings.list">
+          <a :href="following.url">{{ following.githubLogin }}</a>
+        </tr>
+      </td>
+      </tbody>
     </table>
 
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, reactive, ref} from "vue";
+<script setup lang="ts">
+import {reactive, ref} from "vue";
 import axios from "axios";
 
-export default defineComponent({
-  name: "Home",
-  data() {
-    return {
-      handle: ""
-    }
-  },
-  setup() {
-    const data = {
-      "message": "Github Follower Checker"
-    }
+const data = {
+  "message": "Github Follower Checker"
+}
 
-    const show = ref(false);
-    const info = reactive<Info>({
-      neighbors: [],
-      onlyFollowers: [],
-      onlyFollowings: []
-    })
+const show = ref(false);
+const info = reactive<Info>({
+  neighbors: { list: [] },
+  onlyFollowers: { list: [] },
+  onlyFollowings: { list: [] }
+})
 
-    function getData(handle: string) {
-      show.value = false;
-      axios.get("http://localhost:8080/check?handle=" + handle)
-          .then(value => {
-            info.neighbors = value.data.neighbors
-            info.onlyFollowers = value.data.onlyFollowers
-            info.onlyFollowings = value.data.onlyFollowings
-          })
-      show.value = true;
-    }
+const handle = ref("");
 
-    return {data, info, getData, show};
-  }
-});
+function getData(handle: string) {
+  show.value = false;
+  axios.get("http://localhost:8080/check?handle=" + handle)
+      .then(value => {
+        info.neighbors.list = value.data.neighbors.list;
+        info.onlyFollowers.list = value.data.onlyFollowers.list;
+        info.onlyFollowings.list = value.data.onlyFollowings.list;
+      })
+  show.value = true;
+}
 </script>
