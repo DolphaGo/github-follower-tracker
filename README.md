@@ -25,8 +25,8 @@ Also, you can use this application as batch application(For Tracking)
   
 ## Version
 
-* Java : 11
-* Spring Boot : 2.4.3
+* Java : 21
+* Spring Boot : 3.4.2
 * Build Tool : Gradle
 
 
