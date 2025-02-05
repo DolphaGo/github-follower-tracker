@@ -12,13 +12,13 @@
       <thead v-show="show">
       <tr>
         <th scope="row">
-          👥Mutual Followers : {{info.neighbors.list?.length}}
+          👥 Mutual Followers : {{info.neighbors.list?.length}}
         </th>
         <th scope="row">
-          😲Your Followers : {{info.onlyFollowers.list?.length}}
+          😲 Your Followers : {{info.onlyFollowers.list?.length}}
         </th>
         <th scope="row">
-          😢Your Followings : {{info.onlyFollowings.list?.length}}
+          😢 Your Followings : {{info.onlyFollowings.list?.length}}
         </th>
       </tr>
       </thead>
